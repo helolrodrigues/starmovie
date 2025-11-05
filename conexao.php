@@ -1,14 +1,13 @@
 <?php
-    $host = 'localhost';
-    $dbname = 'starmovie';
-    $user = 'root';
-    $pass = '';
-    try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
-        // Habilita erros do PDO
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        //echo "Conexão bem-sucedida!";
-    } catch (PDOException $e) {
-        echo "Erro na conexão: " . $e->getMessage();
-    }
+$servidor = "localhost";
+$usuario = "root";
+$senha = "";
+$banco = "starmovie"; // ou o nome exato do seu banco
+
+$conexao = mysqli_connect($servidor, $usuario, $senha, $banco);
+
+// Teste de conexão (opcional)
+if (!$conexao) {
+    die("Erro de conexão: " . mysqli_connect_error());
+}
 ?>

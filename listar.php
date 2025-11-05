@@ -1,15 +1,24 @@
 <?php
-require 'conexao.php'; 
+session_start();
+if (!isset($_SESSION['usuario'])) {
+    header("Location: login.php");
+    exit;
+}
+?>
 
-$sql = "SELECT * FROM starmovie";
+<?php
+require 'conexao.php';
+
+$sql = "SELECT * FROM titulos";
 $stmt = $pdo->query($sql);
 
+echo "<h1>Lista de Títulos</h1>";
+
 while ($filme = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    echo "<strong>ID:</strong> " . $filme['id'] . "<br>";
-    echo "<strong>Título:</strong> " . $filme['titulo'] . "<br>";
-    echo "<strong>Gênero:</strong> " . $filme['genero'] . "<br>";
-    echo "<strong>Ano:</strong> " . $filme['ano'] . "<br>";
-    echo "<strong>Sinopse:</strong> " . $filme['sinopse'] . "<br>";
-    echo "<strong>Nota:</strong> " . $filme['nota'] . "<br><br>";
+    echo "<div style='margin-bottom:15px; border-bottom:1px solid #ccc;'>";
+    echo "<strong>Série:</strong> " . $filme['nome_serie'] . "<br>";
+    echo "<strong>Filme:</strong> " . $filme['nome_filmes'] . "<br>";
+    echo "<strong>Tipo:</strong> " . $filme['tipo'] . "<br>";
+    echo "</div>";
 }
 ?>
