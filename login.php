@@ -6,12 +6,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $senha = $_POST['senha'];
 
-    $sql = "SELECT * FROM usuarios WHERE email='$email' AND senha='$senha'";
-    $res = mysqli_query($conexao, $sql);
+    // Busca o usuário pelo email e senha
+    $sql = "SELECT * FROM usuarios WHERE email = :email AND senha = :senha";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':email', $email);
+    $stmt->bindParam(':senha', $senha);
+    $stmt->execute();
 
-    if (mysqli_num_rows($res) > 0) {
-        $usuario = mysqli_fetch_assoc($res);
-        $_SESSION['usuario'] = $usuario['nome'];
+    if ($stmt->rowCount() > 0) {
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+        $_SESSION['usuario'] = $usuario['nome']; // guarda o nome na sessão
         header("Location: index.php");
         exit;
     } else {
@@ -19,11 +23,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
-<link rel="stylesheet" href="./css/style.css">
+
+<link rel="stylesheet" href="css/style.css">
+
 <form method="post" class="login-form">
-  <h2>Login</h2>
-  <input type="email" name="email" placeholder="Email" required>
-  <input type="password" name="senha" placeholder="Senha" required>
-  <button type="submit">Entrar</button>
-  <?php if (!empty($erro)) echo "<p style='color:red;'>$erro</p>"; ?>
+    <h2>Login</h2>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="senha" placeholder="Senha" required>
+    <button type="submit">Entrar</button>
+    <?php if (!empty($erro)) echo "<p style='color:red;'>$erro</p>"; ?>
 </form>

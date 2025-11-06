@@ -1,13 +1,14 @@
+
 <?php
 $servidor = "localhost";
 $usuario = "root";
 $senha = "";
-$banco = "starmovie"; // ou o nome exato do seu banco
+$banco = "starmovie";
 
-$conexao = mysqli_connect($servidor, $usuario, $senha, $banco);
-
-// Teste de conexão (opcional)
-if (!$conexao) {
-    die("Erro de conexão: " . mysqli_connect_error());
+try {
+    $pdo = new PDO("mysql:host=$servidor;dbname=$banco;charset=utf8", $usuario, $senha);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Erro de conexão: " . $e->getMessage());
 }
 ?>

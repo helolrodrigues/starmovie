@@ -1,4 +1,11 @@
 <?php
+session_start();
+if (!isset($_SESSION['usuario'])) {
+    header("Location: login.php");
+    exit;
+}
+?>
+ <?php
 require 'conexao.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
