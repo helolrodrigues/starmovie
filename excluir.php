@@ -33,12 +33,11 @@ if (!isset($_SESSION['usuario'])) {
     <div class='msg'>
         <h2>⚠️ Acesso restrito!</h2>
         <p>Você precisa se conectar para acessar esta página.</p>
-        <a href='login.php'>Fazer login</a>
+        <a href='cadastro.php'>Fazer login</a>
     </div>
     ";
     exit;
 }
-
 
 require 'conexao.php';
 
@@ -49,23 +48,26 @@ if (!isset($_GET['id'])) {
 
 $id = (int) $_GET['id']; 
 
-try { //exclui do banco
-   $sql = "DELETE FROM titulos WHERE id_titulos = :id";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-    $stmt->execute();
+try {
+    // 1️⃣ Exclui as reviews relacionadas ao título
+    $del_reviews = $pdo->prepare("DELETE FROM reviews WHERE fk_titulos_id_titulos = :id");
+    $del_reviews->bindParam(':id', $id);
+    $del_reviews->execute();
 
-    // verifica se apagou
-    if ($stmt->rowCount() > 0) {
-        header("Location: listar.php?msg=deletado");
-        exit;
-    } else {
-        echo "Nenhum registro encontrado com esse ID.";
-    }
+    // 2️⃣ Exclui os vínculos com gênero
+    $del_rel = $pdo->prepare("DELETE FROM titulo_genero WHERE fk_titulos_id_titulos = :id");
+    $del_rel->bindParam(':id', $id);
+    $del_rel->execute();
+
+    // 3️⃣ Depois exclui o título
+    $del_titulo = $pdo->prepare("DELETE FROM titulos WHERE id_titulos = :id");
+    $del_titulo->bindParam(':id', $id);
+    $del_titulo->execute();
+
+    header("Location: listar.php?msg=excluido");
+    exit;
 
 } catch (PDOException $e) {
     echo "Erro ao excluir: " . $e->getMessage();
 }
-
 ?>
-

@@ -1,3 +1,3 @@
 <footer>
-    <p>&copy; <?php echo date("Y"); ?> ETECFLIX - Desenvolvido por Heloísa e equipe 🎬</p>
+    <p>&copy; <?php echo date("Y"); ?> STARMOVIE - Desenvolvido pela Equipe Etecflix🎬</p>
 </footer>
