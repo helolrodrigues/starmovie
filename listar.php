@@ -21,6 +21,15 @@ $sql = "
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $filmes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+if(isset($_SESSION['usuario_id']) && $_SESSION['usuario_id'] == $filme['id_usuario']): ?>
+    <div class="card-actions">
+        <a href="atualizar.php?id=<?= $id ?>">Editar</a>
+        <a href="excluir.php?id=<?= $id ?>" onclick="return confirm('Tem certeza que deseja excluir este título?');">Excluir</a>
+    </div>
+<?php endif; ?>
+
 ?>
 
 <!DOCTYPE html>

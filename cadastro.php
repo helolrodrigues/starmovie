@@ -2,6 +2,8 @@
 session_start();
 include("conexao.php"); // deve conter $pdo
 
+$id_usuario = $_SESSION['usuario_id'];
+
 $erro = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

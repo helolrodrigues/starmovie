@@ -79,8 +79,8 @@ CREATE TABLE `titulos` (
 -- Despejando dados para a tabela `titulos`
 --
 
-INSERT INTO `titulos` (`id_titulos`, `nome_filmes`, `tipo`, `nome_serie`, `sinopse`, `imagem`) VALUES
-(58, '', 'Série', 'outer banks', 'amigos', 'img/690e9c98ba4a5-WhatsApp Image 2025-11-05 at 20.17.10.jpeg');
+INSERT INTO `titulos` (`id_titulos`, `nome_filmes`, `tipo`, `nome_serie`, `sinopse`, `imagem`, `id_usuario`) VALUES
+(58, '', 'Série', 'outer banks', 'amigos', 'img/690e9c98ba4a5-WhatsApp Image 2025-11-05 at 20.17.10.jpeg','$id_usuario');
 
 -- --------------------------------------------------------
 
