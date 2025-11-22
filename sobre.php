@@ -30,12 +30,15 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
         main {
            display: flex;
            flex-direction: column;
-           align-items: center;
+           align-items: flex-start;
            justify-content: center;
-           text-align: center;
            padding: 40px 20px;
            font-size: 1.2rem;
-}
+           text-align: left;
+           max-width: 1300px;
+        }
+
+
         .logo {
             display: flex;
             align-items: center;
@@ -91,11 +94,40 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
         .btn-login:hover {
             background-color: #ff0000;
         }
-        .carousel-item img { 
-        max-height: 350px ;
-        width: 100%;
+        .center-img {
+            align-self: center;
+            max-width: 40%;
+            height: auto;
+            display: block;
+            margin: 30px 0; 
         }
+    /* Estiliza o título */
+        .h2 {
+            color: #ddb71fff;         
+            position: relative;      /* Permite posicionar o ::after em relação ao título */
+            display: inline-block;   /* Faz o título ocupar apenas a largura do texto */
+            padding-bottom: 10px;    /* Espaço entre o texto e a linha vermelha */
+            text-align: left;
+            display: block; /* isso força o h2 a ocupar a largura toda */
+}
 
+
+/* Cria a linha vermelha decorativa embaixo do título */
+        .h2::after {
+           content: "";             /* Cria um elemento vazio para se transformar na linha */
+           position: absolute;      /* Permite posicionar a linha livremente */
+           bottom: 0;               /* Coloca a linha exatamente na parte inferior do título */
+           left: 50%;               /* Posiciona o centro da linha no meio do título */
+           transform: translateX(-50%); /* Ajusta a linha para ficar centralizada */
+           width: 60%;              /* Tamanho da linha (60% da largura do texto) */
+           height: 3px;             /* Espessura da linha */
+           background: red;   
+     
+        }
+        .footer{
+            text-align: center;
+
+        }
     </style>
 </head>
 <body>
@@ -125,39 +157,31 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 </div>
 </header>
      <main>
-    <h2>Sobre o Starmovie</h2>
+    <h2 class="h2">Sobre o Starmovie</h2>
     <p>O Starmovie nasceu com a proposta de oferecer um ambiente moderno e fácil de usar para amantes do cinema.  
        Aqui você encontra avaliações, notas e informações sobre filmes de diversos gêneros.  
        Nosso objetivo é ajudar você a decidir o que assistir e compartilhar suas impressões com outros usuários.
+    
+    </p>
+       </p>
+    <h2 class="h2">Nossa missão</h2>
+    <p>Nossa missão é transformar a forma como você descobre novos filmes, oferecendo um ambiente moderno, rápido e intuitivo. Queremos que
+        cada usuário tenha uma experiência simples e agradável ao explorar o universo do cinema.
+    </p>
+    <h2 class="h2">Propósito do Starmovie</h2>
+    <p>Acreditamos que o cinema aproxima pessoas, inspira histórias e desperta emoções. Por isso, nosso propósito é oferecer
+        um espaço onde todos possam expressar seu amor pelo cinema de forma simples e divertida.
+    </p>
+
+
+        <h2 class="h2">Nosso projeto e equipe</h2>
     <p>Este site também faz parte de um projeto desenvolvido na matéria de SW  
       da Escola Maria Cristina Medeiros, onde buscamos aplicar nossos  
       conhecimentos em desenvolvimento web criando uma plataforma prática,  
       intuitiva e voltada para os fãs de cinema.
     </p>
-    </p>
-    <div id="carouselExampleCaptions" class="carousel slide">
-  <div class="carousel-indicators">
-    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
-    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
-  </div>
-  <div class="carousel-inner">
-    <div class="carousel-item active">
-      <img src="img/etecc.jpeg" class="d-block w-100" alt="ETEC Maria Cristina Medeiros">
-      <div class="carousel-caption d-none d-md-block">
-        <h5>ETEC Maria Cristina Medeiros</h5>
-      </div>
-    </div>
-    <div class="carousel-item">
-      <img src="..." class="d-block w-100" alt="...">
-      <div class="carousel-caption d-none d-md-block">
-        <h5>Second slide label</h5>
-        <p>Some representative placeholder content for the second slide.</p>
-      </div>
-    </div>
-
-    </div>
-  </div>
+    <img src="img/nos.jpeg" class="img-fluid center-img" alt="...">
+    
 </div>
      </main>
 
