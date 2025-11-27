@@ -51,8 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($tipo === 'Filme') $nome_serie = '';
     if ($tipo === 'Série') $nome_filmes = '';
 
-    /* Apagar imagem atual */
+    /* ================================
+       Upload e remoção de imagem
+    ================================= */
     $imagem = $titulo['imagem'];
+
+    // Apagar imagem atual se solicitado
     if (isset($_POST['apagar_imagem']) && $_POST['apagar_imagem'] == '1') {
         if (!empty($imagem) && file_exists("img/" . $imagem)) {
             unlink("img/" . $imagem);
@@ -60,31 +64,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $imagem = "";
     }
 
-    /* Upload nova imagem */
+    // Upload nova imagem
     if (!empty($_FILES['nova_imagem']['name'])) {
-        $nomeArq = time() . "_" . basename($_FILES['nova_imagem']['name']);
-        move_uploaded_file($_FILES['nova_imagem']['tmp_name'], "img/" . $nomeArq);
-        $imagem = $nomeArq;
+        $extensao = strtolower(pathinfo($_FILES['nova_imagem']['name'], PATHINFO_EXTENSION));
+        $permitidas = ['jpg','jpeg','png','webp'];
+        if (in_array($extensao, $permitidas)) {
+            $nomeArq = time() . "_" . basename($_FILES['nova_imagem']['name']);
+            move_uploaded_file($_FILES['nova_imagem']['tmp_name'], "img/" . $nomeArq);
+            $imagem = $nomeArq;
+        } else {
+            echo "<script>alert('Formato de imagem não permitido.');</script>";
+        }
     }
 
-    /* Atualiza tabela titulos */
+    /* ================================
+       Atualiza tabela titulos
+    ================================= */
     $update = $pdo->prepare("
         UPDATE titulos 
-        SET nome_filmes=?, nome_serie=?, tipo=?, sinopse=?, imagem=?
-        WHERE id_titulos=?
+        SET nome_filmes = ?, nome_serie = ?, tipo = ?, sinopse = ?, imagem = ?
+        WHERE id_titulos = ?
     ");
     $update->execute([$nome_filmes, $nome_serie, $tipo, $sinopse, $imagem, $id]);
 
-    /* Atualiza gênero */
-    if ($generoNovo != null) {
-        $check = $pdo->prepare("SELECT COUNT(*) FROM titulo_genero WHERE fk_titulos_id_titulos=?");
-        $check->execute([$id]);
+    /* ================================
+       Atualiza gênero do título
+    ================================= */
+    if (!empty($generoNovo)) {
 
-        if ($check->fetchColumn()) {
-            $updateGen = $pdo->prepare("UPDATE titulo_genero SET fk_generos_id_generos=? WHERE fk_titulos_id_titulos=?");
+        // Verifica se já existe um registro
+        $check = $pdo->prepare("
+            SELECT COUNT(*) 
+            FROM titulo_genero 
+            WHERE fk_titulos_id_titulos = ?
+        ");
+        $check->execute([$id]);
+        $existe = $check->fetchColumn();
+
+        if ($existe) {
+            // Atualiza gênero existente
+            $updateGen = $pdo->prepare("
+                UPDATE titulo_genero 
+                SET fk_generos_id_generos = ?
+                WHERE fk_titulos_id_titulos = ?
+            ");
             $updateGen->execute([$generoNovo, $id]);
         } else {
-            $insertGen = $pdo->prepare("INSERT INTO titulo_genero VALUES (?, ?)");
+            // Insere novo registro (especificando colunas)
+            $insertGen = $pdo->prepare("
+                INSERT INTO titulo_genero (fk_titulos_id_titulos, fk_generos_id_generos) 
+                VALUES (?, ?)
+            ");
             $insertGen->execute([$id, $generoNovo]);
         }
     }
@@ -262,10 +292,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Atualiza campos ao carregar a página (preenchimento existente)
     atualizarCampos();
-
-    // Atualiza campos ao alterar o select
     tipo.addEventListener("change", atualizarCampos);
 });
 </script>

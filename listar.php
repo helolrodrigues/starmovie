@@ -36,57 +36,128 @@ try {
 <link rel="stylesheet" href="css/style.css">
 <?php include("header.php"); ?>
 <style>
-/* Seus estilos de catálogo */
-body { background:#000; color:#fff; font-family:Arial, Helvetica, sans-serif; margin:0; padding:0; }
-.catalogo-container { width:90%; max-width:1200px; margin:40px auto; }
-.catalogo-titulo { text-align:center; color:#ffcc00; font-size:2rem; margin-bottom:30px; }
-.catalogo-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:25px; }
-.card { background:#111; border-radius:10px; overflow:hidden; padding-bottom:15px; transition:transform 0.3s, box-shadow 0.3s; }
-.card:hover { transform:scale(1.05); box-shadow:0 0 20px rgba(255,204,0,0.5); }
-.card img { width:100%; height:320px; object-fit:cover; }
-.card-content { padding:15px; }
-.card-content h3 { margin:0; font-size:1.2rem; color:#fff; }
-.card-content p { margin-top:8px; color:#aaa; font-size:0.9rem; }
-.card-content strong { color:#ffcc00; }
-.card-actions { margin-top:10px; }
-.card-actions a { color:#ffcc00; text-decoration:none; margin-right:10px; font-size:0.9rem; transition:color 0.3s; }
-.card-actions a:hover { color:#fff; }
+/* Corpo da página */
+body { 
+    background:#000; 
+    color:#fff; 
+    font-family:Arial, Helvetica, sans-serif; 
+    margin:0; 
+    padding:0; 
+}
+
+/* Container do catálogo */
+.catalogo-container { 
+    width:90%; 
+    max-width:1200px; 
+    margin:40px auto; 
+}
+
+/* Título */
+.catalogo-titulo { 
+    text-align:center; 
+    color:#ffcc00; 
+    font-size:2rem; 
+    margin-bottom:30px; 
+}
+
+/* Grid de cards: 4 por linha */
+.catalogo-grid { 
+    display:grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    gap:25px; 
+}
+
+/* Responsivo */
+@media (max-width: 1024px) { .catalogo-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .catalogo-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px)  { .catalogo-grid { grid-template-columns: 1fr; } }
+
+/* Card individual */
+.card { 
+    background:#111; 
+    border-radius:10px; 
+    overflow:hidden; 
+    padding-bottom:15px; 
+    transition:transform 0.3s, box-shadow 0.3s; 
+}
+.card:hover { 
+    transform:scale(1.05); 
+    box-shadow:0 0 20px rgba(255,204,0,0.5); 
+}
+
+/* Imagem do card */
+.card img { 
+    width:100%; 
+    height:320px; 
+    object-fit:cover; 
+}
+
+/* Conteúdo do card */
+.card-content { 
+    padding:15px; 
+}
+.card-content h3 { 
+    margin:0; 
+    font-size:1.2rem; 
+    color:#fff; 
+}
+.card-content p { 
+    margin-top:8px; 
+    color:#aaa; 
+    font-size:0.9rem; 
+}
+.card-content strong { 
+    color:#ffcc00; 
+}
+
+/* Ações do card (editar/excluir) */
+.card-actions { 
+    margin-top:10px; 
+}
+.card-actions a { 
+    color:#ffcc00; 
+    text-decoration:none; 
+    margin-right:10px; 
+    font-size:0.9rem; 
+    transition:color 0.3s; 
+}
+.card-actions a:hover { 
+    color:#fff; 
+}
 </style>
 </head>
 <body>
 
 <div class="catalogo-container">
-<h1 class="catalogo-titulo">Catálogo de Filmes e Séries</h1>
+    <h1 class="catalogo-titulo">Catálogo de Filmes e Séries</h1>
 
-<div class="catalogo-grid">
+    <div class="catalogo-grid">
+        <?php if(!empty($filmes)): ?>
+            <?php foreach($filmes as $filme): ?>
+                <?php $id = $filme['id_titulos']; ?>
+                <div class="card">
+                    <?php $img = !empty($filme['imagem']) ? $filme['imagem'] : 'img/default_poster.jpg'; ?>
+                    <img src="<?= htmlspecialchars($img) ?>" alt="Capa do título">
+                    
+                    <div class="card-content">
+                        <h3><?= htmlspecialchars($filme['nome_filmes'] ?: $filme['nome_serie']) ?></h3>
+                        <p><strong>Tipo:</strong> <?= htmlspecialchars($filme['tipo']) ?></p>
+                        <p><strong>Gênero:</strong> <?= htmlspecialchars($filme['generos'] ?? '—') ?></p>
+                        <p><strong>Sinopse:</strong> <?= htmlspecialchars($filme['sinopse']) ?></p>
 
-<?php if(!empty($filmes)): ?>
-    <?php foreach($filmes as $filme): ?>
-        <?php $id = $filme['id_titulos']; ?>
-        <div class="card">
-            <?php $img = !empty($filme['imagem']) ? $filme['imagem'] : 'img/default_poster.jpg'; ?>
-            <img src="<?= htmlspecialchars($img) ?>" alt="Capa do título">
-            
-            <div class="card-content">
-                <h3><?= htmlspecialchars($filme['nome_filmes'] ?: $filme['nome_serie']) ?></h3>
-                <p><strong>Tipo:</strong> <?= htmlspecialchars($filme['tipo']) ?></p>
-                <p><strong>Gênero:</strong> <?= htmlspecialchars($filme['generos'] ?? '—') ?></p>
-                <p><strong>Sinopse:</strong> <?= htmlspecialchars($filme['sinopse']) ?></p>
-
-                <?php if(isset($_SESSION['usuario'])): ?>
-                    <div class="card-actions">
-                        <a href="atualizar.php?id=<?= $id ?>">Editar</a>
-                        <a href="excluir.php?id=<?= $id ?>" onclick="return confirm('Tem certeza que deseja excluir este título?');">Excluir</a>
+                        <?php if(isset($_SESSION['usuario'])): ?>
+                            <div class="card-actions">
+                                <a href="atualizar.php?id=<?= $id ?>">Editar</a>
+                                <a href="excluir.php?id=<?= $id ?>" onclick="return confirm('Tem certeza que deseja excluir este título?');">Excluir</a>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    <?php endforeach; ?>
-<?php else: ?>
-    <p style="color:#ffcc00; text-align:center;">Nenhum título encontrado.</p>
-<?php endif; ?>
-
-</div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p style="color:#ffcc00; text-align:center;">Nenhum título encontrado.</p>
+        <?php endif; ?>
+    </div>
 </div>
 
 <?php include("footer.php"); ?>
