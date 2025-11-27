@@ -9,6 +9,9 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     <meta charset="UTF-8">
     <title>Starmovie</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="img/logo.jpeg">
+
+
     <style>
         /* ===== Estilos gerais ===== */
         body {
@@ -23,7 +26,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 15px 60px;
+            padding: 10px 40px;
         }
 
         .logo {
@@ -33,13 +36,20 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
         }
 
         .logo img {
-            height: 40px;
+            height: 60px; /* logo maior */
+            border-radius: 8px;
+        }
+
+        nav {
+            flex: 1;
+            display: flex;
+            justify-content: center; /* centraliza o menu */
         }
 
         nav ul {
             list-style: none;
             display: flex;
-            gap: 25px;
+            gap: 40px; /* espaço entre os links */
             margin: 0;
             padding: 0;
         }
@@ -59,12 +69,6 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
             display: flex;
             align-items: center;
             gap: 15px;
-        }
-
-        .search-login input[type="text"] {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 4px;
         }
 
         .btn-login {
@@ -87,25 +91,25 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 <header>
     <div class="logo">
-        <img src="img/logo.png" alt="Starmovie Logo">
-        <h1 style="color: #ffcc00;">Starmovie</h1>
+        <img src="img/logo.jpeg" alt="Starmovie Logo">
+        <h1 style="color: #ffcc00; margin:0;">Starmovie</h1>
     </div>
 
-        <nav class="menu">
-  <ul>
-    <li><a href="index.php">Início</a></li>
-    <li><a href="sobre.php">Sobre</a></li>
-    <li><a href="inserir.php">Inserir</a></li>
-    <li><a href="listar.php">Listar</a></li>
-  </ul>
+    <nav>
+        <ul>
+            <li><a href="index.php">Início</a></li>
+            <li><a href="sobre.php">Sobre</a></li>
+            <li><a href="inserir.php">Inserir</a></li>
+            <li><a href="listar.php">Listar</a></li>
+        </ul>
     </nav>
 
-<div class="search-login">
-    <?php if (isset($_SESSION['usuario'])): ?>
-        <span>Olá, <strong><?= htmlspecialchars($_SESSION['usuario']) ?></strong></span>
-        <a href="logout.php" class="btn-login">Sair</a>
-    <?php else: ?>
-        <a href="cadastro.php" class="btn-login">Fazer login</a>
-    <?php endif; ?>
-</div>
+    <div class="search-login">
+        <?php if (isset($_SESSION['usuario'])): ?>
+            <span>Olá, <strong><?= htmlspecialchars($_SESSION['usuario']) ?></strong></span>
+            <a href="logout.php" class="btn-login">Sair</a>
+        <?php else: ?>
+            <a href="cadastro.php" class="btn-login">Fazer cadastro</a>
+        <?php endif; ?>
+    </div>
 </header>

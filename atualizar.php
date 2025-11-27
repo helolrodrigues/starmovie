@@ -1,125 +1,96 @@
 <?php
 session_start();
-if (!isset($_SESSION['usuario'])) {
-    echo "
-    <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-        }
-        .msg {
-            background-color: #111;
-            border: 2px solid #ffcc00;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px #ffcc00;
-            width: 350px;
-        }
-        a {
-            color: #ffcc00;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        a:hover {
-            color: #fff200;
-        }
-    </style>
-    <div class='msg'>
-        <h2>⚠️ Acesso restrito!</h2>
-        <p>Você precisa se conectar para acessar esta página.</p>
-        <a href='cadastro.php'>Fazer login</a>
-    </div>
-    ";
-    exit;
-}
-
 require 'conexao.php';
 
-if (!isset($_GET['id'])) die("Erro: Nenhum ID informado!");
-$id = (int)$_GET['id'];
-
-// Busca o título
-try {
-    $stmt = $pdo->prepare("SELECT * FROM titulos WHERE id_titulos = :id");
-    $stmt->execute([':id' => $id]);
-    $titulo = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$titulo) die("Erro: Título não encontrado.");
-
-    // Pega o gênero atual
-    $stmtGenero = $pdo->prepare("SELECT fk_generos_id_generos FROM titulo_genero WHERE fk_titulos_id_titulos = :id LIMIT 1");
-    $stmtGenero->execute([':id' => $id]);
-    $generoAtual = $stmtGenero->fetchColumn();
-    $generoAtual = ($generoAtual !== false) ? (int)$generoAtual : null;
-
-    // Todos os gêneros
-    $generos = $pdo->query("SELECT id_generos, nome FROM generos ORDER BY nome")->fetchAll(PDO::FETCH_ASSOC);
-
-} catch (PDOException $e) {
-    die("Erro ao buscar dados: " . htmlspecialchars($e->getMessage()));
+// Confere login
+if (!isset($_SESSION['usuario_id'])) {
+    die("Você precisa estar logado para acessar esta página.");
 }
 
-// Atualiza quando envia o formulário
+$usuarioLogado = $_SESSION['usuario_id'];
+
+// Confere ID
+if (!isset($_GET['id'])) {
+    die("Erro: Nenhum ID informado.");
+}
+
+$id = (int) $_GET['id'];
+
+/* ================================
+   BUSCA DADOS DO TÍTULO
+================================ */
+$sql = $pdo->prepare("SELECT * FROM titulos WHERE id_titulos = ?");
+$sql->execute([$id]);
+$titulo = $sql->fetch(PDO::FETCH_ASSOC);
+
+if (!$titulo) {
+    die("Erro: Título não encontrado.");
+}
+
+/* ================================
+   BUSCA GÊNEROS
+================================ */
+$generos = $pdo->query("SELECT * FROM generos ORDER BY nome")->fetchAll(PDO::FETCH_ASSOC);
+
+// gênero atual
+$sqlGen = $pdo->prepare("SELECT fk_generos_id_generos FROM titulo_genero WHERE fk_titulos_id_titulos = ?");
+$sqlGen->execute([$id]);
+$generoAtual = $sqlGen->fetchColumn();
+
+/* ================================
+   PROCESSA FORMULÁRIO
+================================ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $nome_filmes = trim($_POST['nome_filmes'] ?? '');
     $nome_serie = trim($_POST['nome_serie'] ?? '');
     $tipo = $_POST['tipo'] ?? '';
     $sinopse = trim($_POST['sinopse'] ?? '');
-    $imagem = $titulo['imagem'] ?? '';
-    $generoSelecionado = !empty($_POST['fk_generos_id_generos']) ? (int)$_POST['fk_generos_id_generos'] : null;
+    $generoNovo = $_POST['fk_generos_id_generos'] ?? null;
 
     if ($tipo === 'Filme') $nome_serie = '';
     if ($tipo === 'Série') $nome_filmes = '';
 
-    // Apagar imagem
-    if (isset($_POST['apagar_imagem']) && $_POST['apagar_imagem'] === '1') {
-        if (!empty($titulo['imagem']) && file_exists('img/' . $titulo['imagem'])) {
-            @unlink('img/' . $titulo['imagem']);
+    /* Apagar imagem atual */
+    $imagem = $titulo['imagem'];
+    if (isset($_POST['apagar_imagem']) && $_POST['apagar_imagem'] == '1') {
+        if (!empty($imagem) && file_exists("img/" . $imagem)) {
+            unlink("img/" . $imagem);
         }
-        $imagem = '';
+        $imagem = "";
     }
 
-    try {
-        // Atualiza título
-        $stmt = $pdo->prepare("UPDATE titulos 
-                               SET nome_filmes = :nome_filmes, 
-                                   nome_serie = :nome_serie, 
-                                   tipo = :tipo, 
-                                   sinopse = :sinopse, 
-                                   imagem = :imagem 
-                               WHERE id_titulos = :id");
-        $stmt->execute([
-            ':nome_filmes' => $nome_filmes,
-            ':nome_serie' => $nome_serie,
-            ':tipo' => $tipo,
-            ':sinopse' => $sinopse,
-            ':imagem' => $imagem,
-            ':id' => $id
-        ]);
-
-        // Atualiza ou insere gênero
-        if ($generoSelecionado !== null) {
-            $existe = $pdo->prepare("SELECT COUNT(*) FROM titulo_genero WHERE fk_titulos_id_titulos = :id");
-            $existe->execute([':id'=>$id]);
-            if ($existe->fetchColumn()) {
-                $stmt = $pdo->prepare("UPDATE titulo_genero SET fk_generos_id_generos = :genero WHERE fk_titulos_id_titulos = :id");
-                $stmt->execute([':genero'=>$generoSelecionado, ':id'=>$id]);
-            } else {
-                $stmt = $pdo->prepare("INSERT INTO titulo_genero (fk_titulos_id_titulos, fk_generos_id_generos) VALUES (:id, :genero)");
-                $stmt->execute([':id'=>$id, ':genero'=>$generoSelecionado]);
-            }
-        }
-
-        header("Location: inserir.php?msg=atualizado"); // volta para inserir.php
-        exit;
-    } catch (PDOException $e) {
-        echo "Erro ao atualizar título: " . htmlspecialchars($e->getMessage());
+    /* Upload nova imagem */
+    if (!empty($_FILES['nova_imagem']['name'])) {
+        $nomeArq = time() . "_" . basename($_FILES['nova_imagem']['name']);
+        move_uploaded_file($_FILES['nova_imagem']['tmp_name'], "img/" . $nomeArq);
+        $imagem = $nomeArq;
     }
+
+    /* Atualiza tabela titulos */
+    $update = $pdo->prepare("
+        UPDATE titulos 
+        SET nome_filmes=?, nome_serie=?, tipo=?, sinopse=?, imagem=?
+        WHERE id_titulos=?
+    ");
+    $update->execute([$nome_filmes, $nome_serie, $tipo, $sinopse, $imagem, $id]);
+
+    /* Atualiza gênero */
+    if ($generoNovo != null) {
+        $check = $pdo->prepare("SELECT COUNT(*) FROM titulo_genero WHERE fk_titulos_id_titulos=?");
+        $check->execute([$id]);
+
+        if ($check->fetchColumn()) {
+            $updateGen = $pdo->prepare("UPDATE titulo_genero SET fk_generos_id_generos=? WHERE fk_titulos_id_titulos=?");
+            $updateGen->execute([$generoNovo, $id]);
+        } else {
+            $insertGen = $pdo->prepare("INSERT INTO titulo_genero VALUES (?, ?)");
+            $insertGen->execute([$id, $generoNovo]);
+        }
+    }
+
+    header("Location: listar.php?msg=atualizado");
+    exit;
 }
 ?>
 
@@ -127,92 +98,177 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Atualizar título</title>
+<title>Editar Título</title>
 <style>
 body {
-    background-color:#000;
-    color:#fff;
-    font-family:Arial,sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    margin:0;
+    background: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding-top: 40px;
 }
+
 form {
-    background-color:#111;
-    padding:25px;
-    border-radius:10px;
-    box-shadow:0 0 15px #ffcc00;
-    width:400px;
+    background: #111;
+    width: 450px;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(255, 204, 0, 0.4);
+    animation: fade 0.3s ease;
 }
-h2 {text-align:center;color:#ffcc00;}
-input, textarea, select {width:100%;padding:8px;margin:8px 0;border-radius:5px;border:none;}
-button {background-color:#ffcc00;color:#000;border:none;padding:10px;border-radius:5px;cursor:pointer;width:100%;}
-button:hover {background-color:#fff200;}
-.imagem-atual img {border-radius:5px;margin-bottom:5px;display:block;}
-.imagem-atual label {font-size:0.9em;}
+
+@keyframes fade {
+    from { opacity: 0; transform: translateY(-15px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+    text-align: center;
+    color: #ffcc00;
+    margin-bottom: 10px;
+}
+
+label {
+    font-weight: bold;
+    color: #ffcc00;
+    margin-top: 10px;
+    display: block;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #000;
+    color: #fff;
+    font-size: 14px;
+}
+
+button {
+    background: #ffcc00;
+    color: #000;
+    border: none;
+    padding: 12px;
+    margin-top: 15px;
+    width: 100%;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.imagem-atual {
+    margin-top: 10px;
+    padding: 10px;
+    background: #222;
+    border-radius: 8px;
+    text-align: center;
+}
+
 .btn-voltar {
-    position:fixed;
-    top:15px;
-    left:15px;
-    background:#111;
-    color:#ffcc00;
-    border:2px solid #ffcc00;
-    padding:6px 12px;
-    border-radius:8px;
-    text-decoration:none;
-    font-weight:bold;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    border: 2px solid #ffcc00;
+    background: transparent;
+    color: #ffcc00;
+    padding: 8px 14px;
+    text-decoration: none;
+    border-radius: 10px;
 }
-.btn-voltar:hover {background:#ffcc00;color:#000;}
+
+/* Campos dinâmicos de Filme/Série */
+#campo-filme, #campo-serie { display:none; }
 </style>
 </head>
 <body>
 
-<a href="index.php" class="btn-voltar">⬅ Voltar</a>
+<a href="listar.php" class="btn-voltar">⬅ Voltar</a>
 
 <form method="POST" enctype="multipart/form-data">
-<h2>Atualizar título</h2>
+<h2>Editar Título</h2>
 
-<label>Nome do Filme</label>
-<input type="text" name="nome_filmes" value="<?= htmlspecialchars($titulo['nome_filmes'] ?? '') ?>">
-
-<label>Nome da Série</label>
-<input type="text" name="nome_serie" value="<?= htmlspecialchars($titulo['nome_serie'] ?? '') ?>">
-
-<label>Tipo</label>
-<select name="tipo" required>
+<label>Tipo:</label>
+<select name="tipo" id="tipo" required>
     <option value="">Selecione...</option>
-    <option value="Filme" <?= ($titulo['tipo']==='Filme')?'selected':'' ?>>Filme</option>
-    <option value="Série" <?= ($titulo['tipo']==='Série')?'selected':'' ?>>Série</option>
+    <option value="Filme" <?= $titulo['tipo']=='Filme'?'selected':'' ?>>Filme</option>
+    <option value="Série" <?= $titulo['tipo']=='Série'?'selected':'' ?>>Série</option>
 </select>
 
-<label>Gênero</label>
-<select name="fk_generos_id_generos" required>
-    <option value="">Selecione um gênero...</option>
-    <?php foreach($generos as $g){
-        $selected = ($generoAtual==$g['id_generos'])?'selected':'';
-        echo '<option value="'.$g['id_generos'].'" '.$selected.'>'.$g['nome'].'</option>';
-    } ?>
-</select>
-
-<label>Sinopse</label>
-<textarea name="sinopse" rows="4"><?= htmlspecialchars($titulo['sinopse'] ?? '') ?></textarea>
-
-<label>Imagem atual:</label>
-<div class="imagem-atual">
-    <?php
-    $caminhoImagem = !empty($titulo['imagem']) ? 'img/' . $titulo['imagem'] : '';
-    if (!empty($titulo['imagem']) && file_exists($caminhoImagem)): ?>
-        <img src="<?= htmlspecialchars($caminhoImagem) ?>" width="120">
-        <label><input type="checkbox" name="apagar_imagem" value="1"> Apagar imagem atual</label>
-    <?php else: ?>
-        <p>Nenhuma imagem cadastrada.</p>
-    <?php endif; ?>
+<!-- CAMPO FILME -->
+<div id="campo-filme">
+    <label>Nome do Filme:</label>
+    <input type="text" name="nome_filmes" id="nome_filmes" value="<?= htmlspecialchars($titulo['nome_filmes']) ?>">
 </div>
 
-<button type="submit">Salvar Alterações</button>
+<!-- CAMPO SÉRIE -->
+<div id="campo-serie">
+    <label>Nome da Série:</label>
+    <input type="text" name="nome_serie" id="nome_serie" value="<?= htmlspecialchars($titulo['nome_serie']) ?>">
+</div>
+
+<label>Gênero:</label>
+<select name="fk_generos_id_generos">
+    <option value="">Selecione...</option>
+    <?php foreach($generos as $g): ?>
+        <option value="<?= $g['id_generos'] ?>" <?= $g['id_generos']==$generoAtual?'selected':'' ?>>
+            <?= htmlspecialchars($g['nome']) ?>
+        </option>
+    <?php endforeach; ?>
+</select>
+
+<label>Sinopse:</label>
+<textarea name="sinopse" rows="4"><?= htmlspecialchars($titulo['sinopse']) ?></textarea>
+
+<label>Nova imagem (opcional):</label>
+<input type="file" name="nova_imagem">
+
+<button type="submit">Salvar alterações</button>
 </form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const tipo = document.getElementById("tipo");
+    const campoFilme = document.getElementById("campo-filme");
+    const campoSerie = document.getElementById("campo-serie");
+    const inputFilme = document.getElementById("nome_filmes");
+    const inputSerie = document.getElementById("nome_serie");
+
+    function atualizarCampos() {
+        if (tipo.value === "Filme") {
+            campoFilme.style.display = "block";
+            campoSerie.style.display = "none";
+            inputFilme.required = true;
+            inputSerie.required = false;
+            inputSerie.value = "";
+        } else if (tipo.value === "Série") {
+            campoFilme.style.display = "none";
+            campoSerie.style.display = "block";
+            inputSerie.required = true;
+            inputFilme.required = false;
+            inputFilme.value = "";
+        } else {
+            campoFilme.style.display = "none";
+            campoSerie.style.display = "none";
+            inputFilme.required = false;
+            inputSerie.required = false;
+        }
+    }
+
+    // Atualiza campos ao carregar a página (preenchimento existente)
+    atualizarCampos();
+
+    // Atualiza campos ao alterar o select
+    tipo.addEventListener("change", atualizarCampos);
+});
+</script>
 
 </body>
 </html>

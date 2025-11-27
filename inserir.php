@@ -1,67 +1,35 @@
 <?php
 session_start();
-if (!isset($_SESSION['usuario'])) {
-    echo "
-    <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-        }
-        .msg {
-            background-color: #111;
-            border: 2px solid #ffcc00;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px #ffcc00;
-            width: 350px;
-        }
-        a {
-            color: #ffcc00;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        a:hover {
-            color: #fff200;
-        }
-    </style>
-    <div class='msg'>
-        <h2>⚠️ Acesso restrito!</h2>
-        <p>Você precisa se conectar para acessar esta página.</p>
-        <a href='cadastro.php'>Fazer login</a>
-    </div>
-    ";
-    exit;
-}
-require 'conexao.php'; // $pdo
 
+// Bloqueio para usuário não logado
+if (!isset($_SESSION['usuario_id'])) {
+    die("Você precisa estar logado para acessar esta página.");
+}
+
+require 'conexao.php';
+
+$usuarioLogado = $_SESSION['usuario_id'];
+
+// Processar formulário
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // Captura os campos do formulário
-    $tipo = trim($_POST['tipo'] ?? '');
-    $nome_filmes = trim($_POST['nome_filmes'] ?? '');
-    $nome_serie = trim($_POST['nome_serie'] ?? '');
-    $sinopse = trim($_POST['sinopse'] ?? '');
-    $genero = trim($_POST['genero'] ?? '');
-    $imagem = null;
+    $tipo         = trim($_POST['tipo'] ?? '');
+    $nome_filmes  = trim($_POST['nome_filmes'] ?? '');
+    $nome_serie   = trim($_POST['nome_serie'] ?? '');
+    $sinopse      = trim($_POST['sinopse'] ?? '');
+    $genero       = trim($_POST['genero'] ?? '');
+    $imagem       = null;
 
-    // Validação mínima
     if ($tipo === '') {
-        echo "<p style='color:red;text-align:center;'>Por favor, selecione o tipo (Filme ou Série)!</p>";
+        echo "<p style='color:red;text-align:center;'>Por favor, selecione o tipo!</p>";
         exit;
     }
 
-    // Limpa o campo que não vai usar
     if ($tipo === 'Filme') $nome_serie = '';
     if ($tipo === 'Série') $nome_filmes = '';
 
-    // Upload da imagem
-    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
+    // Upload de imagem
+    if (!empty($_FILES['imagem']['name'])) {
         $pastaDestino = __DIR__ . '/img/';
         if (!is_dir($pastaDestino)) mkdir($pastaDestino, 0777, true);
 
@@ -69,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $caminhoDestino = $pastaDestino . $nomeArquivo;
 
         if (move_uploaded_file($_FILES['imagem']['tmp_name'], $caminhoDestino)) {
-            $imagem = 'img/' . $nomeArquivo; // caminho relativo para usar no HTML
+            $imagem = 'img/' . $nomeArquivo;
         } else {
             echo "<p style='color:red;text-align:center;'>Erro ao mover a imagem!</p>";
             exit;
@@ -77,22 +45,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Insere o título no banco
-        $sql = "INSERT INTO titulos (nome_filmes, nome_serie, tipo, sinopse, imagem)
-                VALUES (:nome_filmes, :nome_serie, :tipo, :sinopse, :imagem)";
+        // Inserir título com id_usuario
+        $sql = "INSERT INTO titulos (nome_filmes, nome_serie, tipo, sinopse, imagem, id_usuario)
+                VALUES (:nome_filmes, :nome_serie, :tipo, :sinopse, :imagem, :id_usuario)";
+
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':nome_filmes', $nome_filmes);
         $stmt->bindParam(':nome_serie', $nome_serie);
         $stmt->bindParam(':tipo', $tipo);
         $stmt->bindParam(':sinopse', $sinopse);
         $stmt->bindParam(':imagem', $imagem);
+        $stmt->bindParam(':id_usuario', $usuarioLogado);
         $stmt->execute();
 
         $id_titulo = $pdo->lastInsertId();
 
-        // Inserir/associar gênero
+        // Associar gênero
         if ($genero !== '') {
-            // verifica se já existe
             $stmtGen = $pdo->prepare("SELECT id_generos FROM generos WHERE nome = :genero LIMIT 1");
             $stmtGen->bindParam(':genero', $genero);
             $stmtGen->execute();
@@ -108,12 +77,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $rel = $pdo->prepare("INSERT INTO titulo_genero (fk_titulos_id_titulos, fk_generos_id_generos)
                                   VALUES (:id_titulos, :id_generos)");
+
             $rel->bindParam(':id_titulos', $id_titulo);
             $rel->bindParam(':id_generos', $id_genero);
             $rel->execute();
         }
 
-        // Redireciona para a listagem
         header("Location: listar.php?msg=inserido");
         exit;
 
@@ -122,51 +91,120 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ======= BUSCAR GÊNEROS EXISTENTES =======
+// Carregar gêneros
 $generosExistentes = [];
 try {
     $stmt = $pdo->query("SELECT nome FROM generos ORDER BY nome ASC");
     $generosExistentes = $stmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (PDOException $e) {
-    echo "<p style='color:red;text-align:center;'>Erro ao carregar gêneros: " . htmlspecialchars($e->getMessage()) . "</p>";
+    echo "<p style='color:red;text-align:center;'>Erro ao carregar gêneros!</p>";
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Adicionar novo título</title>
+<title>Adicione um novo título</title>
+
 <style>
-body { background-color:#000; color:#fff; font-family:Arial,sans-serif; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
-form { background-color:#111; padding:25px; border-radius:10px; box-shadow:0 0 15px #ffcc00; width:400px; }
-h2 { text-align:center; color:#ffcc00; }
-input, textarea, select { width:100%; padding:8px; margin:8px 0; border-radius:5px; border:none; }
-button { background:#ffcc00; color:#000; padding:10px; border-radius:5px; border:none; cursor:pointer; width:100%; }
-button:hover { background:#fff200; }
-.btn-voltar { position:absolute; top:20px; left:20px; background:#111; color:#ffcc00; border:2px solid #ffcc00; padding:8px 14px; border-radius:8px; text-decoration:none; font-weight:bold;}
-.btn-voltar:hover{ background:#ffcc00; color:#000; }
+    body { 
+        background:#000; 
+        color:#fff; 
+        font-family:Arial,sans-serif; 
+        display:flex; 
+        justify-content:center; 
+        align-items:center; 
+        min-height:100vh;
+        margin:0;
+        padding-top:40px;
+    }
+
+    form { 
+        background:#111; 
+        padding:35px; 
+        border-radius:12px; 
+        box-shadow:0 0 18px #ffcc00; 
+        width:430px; 
+    }
+
+    h2 { 
+        text-align:center; 
+        color:#ffcc00; 
+        margin-bottom:20px;
+    }
+
+    input, textarea, select { 
+        width:100%; 
+        padding:10px; 
+        margin:10px 0; 
+        border-radius:6px; 
+        border:none; 
+        background:#222;
+        color:#fff;
+    }
+
+    button { 
+        background:#ffcc00; 
+        color:#000; 
+        padding:12px; 
+        border-radius:6px; 
+        border:none; 
+        cursor:pointer; 
+        width:100%; 
+        font-size:1rem;
+        font-weight:bold;
+        margin-top:10px;
+    }
+    
+    button:hover { background:#fff200; }
+
+    .btn-voltar { 
+        position:absolute; 
+        top:20px; 
+        left:20px; 
+        background:#111; 
+        color:#ffcc00; 
+        border:2px solid #ffcc00; 
+        padding:8px 14px; 
+        border-radius:8px; 
+        text-decoration:none; 
+        font-weight:bold;
+    }
+
+    .btn-voltar:hover { 
+        background:#ffcc00; 
+        color:#000; 
+    }
 </style>
+
 </head>
 <body>
 
 <a href="index.php" class="btn-voltar">⬅ Voltar</a>
 
 <form method="POST" enctype="multipart/form-data">
-<h2>Adicionar título</h2>
+<h2>Insira um novo título!</h2>
 
 <label>Tipo:</label>
-<select name="tipo" required>
+<select name="tipo" id="tipo" required>
     <option value="">Selecione...</option>
     <option value="Filme">Filme</option>
     <option value="Série">Série</option>
 </select>
 
-<label>Nome do Filme:</label>
-<input type="text" name="nome_filmes" placeholder="Digite o nome do filme">
+<!-- CAMPO FILME -->
+<div id="campo-filme" style="display:none;">
+    <label>Nome do Filme:</label>
+    <input type="text" name="nome_filmes" id="nome_filmes" placeholder="Digite o nome do filme">
+</div>
 
-<label>Nome da Série:</label>
-<input type="text" name="nome_serie" placeholder="Digite o nome da série">
+<!-- CAMPO SERIE -->
+<div id="campo-serie" style="display:none;">
+    <label>Nome da Série:</label>
+    <input type="text" name="nome_serie" id="nome_serie" placeholder="Digite o nome da série">
+</div>
 
 <label>Gênero:</label>
 <select name="genero">
@@ -184,6 +222,42 @@ button:hover { background:#fff200; }
 
 <button type="submit">Salvar</button>
 </form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const tipo = document.getElementById("tipo");
+    const campoFilme = document.getElementById("campo-filme");
+    const campoSerie = document.getElementById("campo-serie");
+    const inputFilme = document.getElementById("nome_filmes");
+    const inputSerie = document.getElementById("nome_serie");
+
+    tipo.addEventListener("change", function() {
+        if (this.value === "Filme") {
+            campoFilme.style.display = "block";
+            campoSerie.style.display = "none";
+
+            inputFilme.required = true;
+            inputSerie.required = false;
+            inputSerie.value = "";
+        } 
+        else if (this.value === "Série") {
+            campoFilme.style.display = "none";
+            campoSerie.style.display = "block";
+
+            inputSerie.required = true;
+            inputFilme.required = false;
+            inputFilme.value = "";
+        } 
+        else {
+            campoFilme.style.display = "none";
+            campoSerie.style.display = "none";
+
+            inputFilme.required = false;
+            inputSerie.required = false;
+        }
+    });
+});
+</script>
 
 </body>
 </html>

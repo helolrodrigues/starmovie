@@ -2,8 +2,6 @@
 session_start();
 include("conexao.php"); // deve conter $pdo
 
-$id_usuario = $_SESSION['usuario_id'];
-
 $erro = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -14,41 +12,59 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($nome) || empty($email) || empty($senha)) {
         $erro = "Preencha todos os campos.";
     } else {
-        // verifica se já existe o usuário
-        $sql = "SELECT * FROM usuarios WHERE email = :email";
+        // Verifica se o email já existe
+        $sql = "SELECT id_usuario FROM usuarios WHERE email = :email";
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
 
         if ($stmt->rowCount() > 0) {
-            // usuário já existe → atualiza nome e senha
+            // Usuário já existe → atualizar
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $id = $row['id_usuario'];
+
             $hash = password_hash($senha, PASSWORD_DEFAULT);
-            $upd = $pdo->prepare("UPDATE usuarios SET nome = :nome, senha = :senha WHERE email = :email");
+
+            $upd = $pdo->prepare("
+                UPDATE usuarios 
+                SET nome = :nome, senha = :senha 
+                WHERE id_usuario = :id
+            ");
             $upd->execute([
                 ':nome' => $nome,
                 ':senha' => $hash,
-                ':email' => $email
+                ':id'    => $id
             ]);
+
         } else {
-            // usuário não existe → cria
+            // Criar novo usuário
             $hash = password_hash($senha, PASSWORD_DEFAULT);
-            $ins = $pdo->prepare("INSERT INTO usuarios (nome, email, senha) VALUES (:nome, :email, :senha)");
+
+            $ins = $pdo->prepare("
+                INSERT INTO usuarios (nome, email, senha) 
+                VALUES (:nome, :email, :senha)
+            ");
             $ins->execute([
                 ':nome' => $nome,
                 ':email' => $email,
                 ':senha' => $hash
             ]);
+
+            // Capturar ID inserido
+            $id = $pdo->lastInsertId();
         }
 
-        // login automático
+        // Login automático
         $_SESSION['usuario'] = $nome;
+        $_SESSION['usuario_email'] = $email;
+        $_SESSION['usuario_id'] = $id;
+
         header("Location: index.php");
         exit;
     }
 }
 ?>
-
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -120,37 +136,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         p {
             color: #ff4d4d;
             margin-top: 10px;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Botão de voltar */
-        .btn-voltar {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background-color: #111;
-            color: #ffcc00;
-            border: 2px solid #ffcc00;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-weight: bold;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-
-        .btn-voltar:hover {
-            background-color: #ffcc00;
-            color: #000;
         }
     </style>
 </head>

@@ -2,34 +2,30 @@
 session_start();
 require 'conexao.php';
 
-// Consulta que já traz os gêneros de cada título
-$sql = "
-    SELECT 
-        t.id_titulos,
-        t.nome_filmes,
-        t.nome_serie,
-        t.tipo,
-        t.sinopse,
-        t.imagem,
-        GROUP_CONCAT(g.nome SEPARATOR ', ') AS generos
-    FROM titulos t
-    LEFT JOIN titulo_genero tg ON tg.fk_titulos_id_titulos = t.id_titulos
-    LEFT JOIN generos g ON g.id_generos = tg.fk_generos_id_generos
-    GROUP BY t.id_titulos
-    ORDER BY t.id_titulos DESC
-";
-$stmt = $pdo->prepare($sql);
-$stmt->execute();
-$filmes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Busca títulos com seus gêneros
+try {
+    $sql = "
+        SELECT 
+            t.id_titulos,
+            t.nome_filmes,
+            t.nome_serie,
+            t.tipo,
+            t.sinopse,
+            t.imagem,
+            GROUP_CONCAT(g.nome SEPARATOR ', ') AS generos
+        FROM titulos t
+        LEFT JOIN titulo_genero tg ON tg.fk_titulos_id_titulos = t.id_titulos
+        LEFT JOIN generos g ON g.id_generos = tg.fk_generos_id_generos
+        GROUP BY t.id_titulos
+        ORDER BY t.id_titulos DESC
+    ";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    $filmes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-if(isset($_SESSION['usuario_id']) && $_SESSION['usuario_id'] == $filme['id_usuario']): ?>
-    <div class="card-actions">
-        <a href="atualizar.php?id=<?= $id ?>">Editar</a>
-        <a href="excluir.php?id=<?= $id ?>" onclick="return confirm('Tem certeza que deseja excluir este título?');">Excluir</a>
-    </div>
-<?php endif; ?>
-
+} catch (PDOException $e) {
+    die("Erro ao buscar títulos: " . $e->getMessage());
+}
 ?>
 
 <!DOCTYPE html>
@@ -40,6 +36,7 @@ if(isset($_SESSION['usuario_id']) && $_SESSION['usuario_id'] == $filme['id_usuar
 <link rel="stylesheet" href="css/style.css">
 <?php include("header.php"); ?>
 <style>
+/* Seus estilos de catálogo */
 body { background:#000; color:#fff; font-family:Arial, Helvetica, sans-serif; margin:0; padding:0; }
 .catalogo-container { width:90%; max-width:1200px; margin:40px auto; }
 .catalogo-titulo { text-align:center; color:#ffcc00; font-size:2rem; margin-bottom:30px; }
@@ -57,16 +54,19 @@ body { background:#000; color:#fff; font-family:Arial, Helvetica, sans-serif; ma
 </style>
 </head>
 <body>
+
 <div class="catalogo-container">
 <h1 class="catalogo-titulo">Catálogo de Filmes e Séries</h1>
 
 <div class="catalogo-grid">
-<?php if($filmes): ?>
+
+<?php if(!empty($filmes)): ?>
     <?php foreach($filmes as $filme): ?>
         <?php $id = $filme['id_titulos']; ?>
         <div class="card">
             <?php $img = !empty($filme['imagem']) ? $filme['imagem'] : 'img/default_poster.jpg'; ?>
             <img src="<?= htmlspecialchars($img) ?>" alt="Capa do título">
+            
             <div class="card-content">
                 <h3><?= htmlspecialchars($filme['nome_filmes'] ?: $filme['nome_serie']) ?></h3>
                 <p><strong>Tipo:</strong> <?= htmlspecialchars($filme['tipo']) ?></p>
@@ -83,8 +83,9 @@ body { background:#000; color:#fff; font-family:Arial, Helvetica, sans-serif; ma
         </div>
     <?php endforeach; ?>
 <?php else: ?>
-    <p>Nenhum filme encontrado.</p>
+    <p style="color:#ffcc00; text-align:center;">Nenhum título encontrado.</p>
 <?php endif; ?>
+
 </div>
 </div>
 

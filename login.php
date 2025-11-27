@@ -15,7 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($stmt->rowCount() > 0) {
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-        $_SESSION['usuario'] = $usuario['nome']; // guarda o nome na sessão
+        $_SESSION['usuario'] = $usuario['nome'];          // mantém o nome
+        $_SESSION['usuario_id'] = $usuario['id_usuario']; // 👈 adiciona o ID
         header("Location: index.php");
         exit;
     } else {
