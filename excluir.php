@@ -33,7 +33,7 @@ if (!isset($_SESSION['usuario'])) {
     <div class='msg'>
         <h2>⚠️ Acesso restrito!</h2>
         <p>Você precisa se conectar para acessar esta página.</p>
-        <a href='cadastro.php'>Fazer login</a>
+        <a href='cadastro.php'>Fazer cadastro</a>
     </div>
     ";
     exit;

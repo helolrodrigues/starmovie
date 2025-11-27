@@ -1,12 +1,70 @@
 <?php
 session_start();
+require 'conexao.php';
 
 // Bloqueio para usuário não logado
 if (!isset($_SESSION['usuario_id'])) {
-    die("Você precisa estar logado para acessar esta página.");
+    // CSS + HTML para mensagem de aviso
+    echo '
+    <!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <title>Acesso Negado</title>
+        <style>
+            body {
+                background: #000;
+                color: #fff;
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                height: 100vh;
+                margin: 0;
+            }
+            .mensagem-box {
+                background: #111;
+                border: 2px solid #ffcc00;
+                padding: 30px 50px;
+                border-radius: 12px;
+                text-align: center;
+                box-shadow: 0 0 20px rgba(255,204,0,0.5);
+            }
+            h2 {
+                color: #ffcc00;
+                margin-bottom: 15px;
+            }
+            p {
+                margin-bottom: 20px;
+                color: #fff;
+            }
+            .btn-login {
+                text-decoration: none;
+                background: #ffcc00;
+                color: #000;
+                padding: 12px 25px;
+                border-radius: 8px;
+                font-weight: bold;
+                transition: transform 0.2s;
+            }
+            .btn-login:hover {
+                transform: scale(1.05);
+                background: #fff200;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="mensagem-box">
+            <h2>Acesso Negado</h2>
+            <p>Você precisa estar cadastrado para acessar esta página.</p>
+            <a href="cadastro.php" class="btn-login">Fazer cadastro</a>
+        </div>
+    </body>
+    </html>
+    ';
+    exit;
 }
-
-require 'conexao.php';
 
 $usuarioLogado = $_SESSION['usuario_id'];
 
@@ -19,11 +77,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sinopse      = trim($_POST['sinopse'] ?? '');
     $genero       = trim($_POST['genero'] ?? '');
     $imagem       = null;
-
-    if ($tipo === '') {
-        echo "<p style='color:red;text-align:center;'>Por favor, selecione o tipo!</p>";
-        exit;
-    }
 
     if ($tipo === 'Filme') $nome_serie = '';
     if ($tipo === 'Série') $nome_filmes = '';

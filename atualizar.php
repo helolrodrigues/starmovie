@@ -4,9 +4,69 @@ require 'conexao.php';
 
 // Confere login
 if (!isset($_SESSION['usuario_id'])) {
-    die("Você precisa estar logado para acessar esta página.");
+    // Mensagem estilizada com botão para cadastro
+    echo '
+    <!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <title>Acesso Negado</title>
+        <style>
+            body {
+                background: #000;
+                color: #fff;
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                height: 100vh;
+                margin: 0;
+            }
+            .mensagem-box {
+                background: #111;
+                border: 2px solid #ffcc00;
+                padding: 30px 50px;
+                border-radius: 12px;
+                text-align: center;
+                box-shadow: 0 0 20px rgba(255,204,0,0.5);
+            }
+            h2 {
+                color: #ffcc00;
+                margin-bottom: 15px;
+            }
+            p {
+                margin-bottom: 20px;
+                color: #fff;
+            }
+            .btn-cadastro {
+                text-decoration: none;
+                background: #ffcc00;
+                color: #000;
+                padding: 12px 25px;
+                border-radius: 8px;
+                font-weight: bold;
+                transition: transform 0.2s;
+            }
+            .btn-cadastro:hover {
+                transform: scale(1.05);
+                background: #fff200;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="mensagem-box">
+            <h2>Acesso Negado</h2>
+            <p>Você precisa estar cadastrado para acessar esta página.</p>
+            <a href="cadastro.php" class="btn-cadastro">Fazer cadastro</a>
+        </div>
+    </body>
+    </html>
+    ';
+    exit;
 }
 
+// Usuário logado continua com o código normal
 $usuarioLogado = $_SESSION['usuario_id'];
 
 // Confere ID
@@ -56,7 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ================================= */
     $imagem = $titulo['imagem'];
 
-    // Apagar imagem atual se solicitado
     if (isset($_POST['apagar_imagem']) && $_POST['apagar_imagem'] == '1') {
         if (!empty($imagem) && file_exists("img/" . $imagem)) {
             unlink("img/" . $imagem);
@@ -64,7 +123,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $imagem = "";
     }
 
-    // Upload nova imagem
     if (!empty($_FILES['nova_imagem']['name'])) {
         $extensao = strtolower(pathinfo($_FILES['nova_imagem']['name'], PATHINFO_EXTENSION));
         $permitidas = ['jpg','jpeg','png','webp'];
@@ -91,8 +149,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
        Atualiza gênero do título
     ================================= */
     if (!empty($generoNovo)) {
-
-        // Verifica se já existe um registro
         $check = $pdo->prepare("
             SELECT COUNT(*) 
             FROM titulo_genero 
@@ -102,7 +158,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $existe = $check->fetchColumn();
 
         if ($existe) {
-            // Atualiza gênero existente
             $updateGen = $pdo->prepare("
                 UPDATE titulo_genero 
                 SET fk_generos_id_generos = ?
@@ -110,7 +165,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $updateGen->execute([$generoNovo, $id]);
         } else {
-            // Insere novo registro (especificando colunas)
             $insertGen = $pdo->prepare("
                 INSERT INTO titulo_genero (fk_titulos_id_titulos, fk_generos_id_generos) 
                 VALUES (?, ?)
@@ -123,6 +177,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 ?>
+
+<!-- HTML do formulário de edição continua aqui normalmente -->
+
 
 <!DOCTYPE html>
 <html lang="pt-br">
