@@ -9,11 +9,10 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     <meta charset="UTF-8">
     <title>Starmovie</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" type="image/png" href="img/logo.png">
+    <link rel="icon" type="image/png" href="img/logo.jpeg">
 
 
     <style>
-        /* ===== Estilos gerais ===== */
         body {
             margin: 0;
             background-color: #000;
@@ -36,20 +35,20 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
         }
 
         .logo img {
-            height: 60px; /* logo maior */
+            height: 60px; 
             border-radius: 8px;
         }
 
         nav {
             flex: 1;
             display: flex;
-            justify-content: center; /* centraliza o menu */
+            justify-content: center;
         }
 
         nav ul {
             list-style: none;
             display: flex;
-            gap: 40px; /* espaço entre os links */
+            gap: 40px; 
             margin: 0;
             padding: 0;
         }
@@ -90,13 +89,11 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 <body>
 
 <header>
-    <!-- logo e nome do site -->
     <div class="logo">
         <img src="img/logo.png" alt="Starmovie Logo">
         <h1 style="color: #ffcc00; margin:0;">Starmovie</h1>
     </div>
 
-    <!-- menu de navegação -->
     <nav>
         <ul>
             <li><a href="index.php">Início</a></li>
@@ -106,7 +103,6 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
         </ul>
     </nav>
 
-    <!-- login/cadastro -->
     <div class="search-login">
         <?php if (isset($_SESSION['usuario'])): ?>
             <span>Olá, <strong><?= htmlspecialchars($_SESSION['usuario']) ?></strong></span>

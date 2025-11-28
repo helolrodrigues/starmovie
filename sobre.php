@@ -11,7 +11,6 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     <link rel="stylesheet" href="css/style.css">
 
     <style>
-        /* ===== Estilos gerais ===== */
         body {
             margin: 0;
             background-color: #000;
@@ -102,7 +101,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
             margin: 30px 0; 
         }
 
-        /* Estiliza os títulos */
+    
         .h2 {
             color: #ddb71fff;         
             position: relative;
@@ -126,7 +125,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
             text-align: center;
         }
 
-        /* Botão GitHub */
+    
         .btn-github {
             display: inline-flex;
             align-items: center;
@@ -158,8 +157,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 <main>
     <h2 class="h2">Sobre o Starmovie</h2>
     <p>O Starmovie nasceu com a proposta de oferecer um ambiente moderno e fácil de usar para amantes do cinema.  
-       Aqui você encontra avaliações, notas e informações sobre filmes de diversos gêneros.  
-       Nosso objetivo é ajudar você a decidir o que assistir e compartilhar suas impressões com outros usuários.
+       Nosso objetivo é ajudar você a decidir o que assistir e também indicar outros títulos. 
     </p>
 
     <h2 class="h2">Nossa missão</h2>
@@ -169,7 +167,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
     <h2 class="h2">Propósito do Starmovie</h2>
     <p>Acreditamos que o cinema aproxima pessoas, inspira histórias e desperta emoções. Por isso, nosso propósito é oferecer
-        um espaço onde todos possam expressar seu amor pelo cinema de forma simples e divertida.
+        um espaço onde todos possam conhecer diversos generos do cinema de forma simples e divertida.
     </p>
 
     <h2 class="h2">Nosso projeto e equipe</h2>
@@ -193,7 +191,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
   <div class="dev-card">
     <img src="img/anabia.jpg" class="foto">
-    <p class="nome">Ana Beatriz Gilarde</p>
+    <p class="nome">Ana Beatriz Gilarde Portela</p>
   </div>
 
   <div class="dev-card">
@@ -203,13 +201,10 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
   <div class="dev-card">
     <img src="img/julio.jpg" class="foto">
-    <p class="nome">julio Cesar Pereira Da Silva Junior</p>
+    <p class="nome">Julio Cesar Pereira Da Silva Junior</p>
   </div>
 
-</div>
 
-
-    <!-- Seção de Contato com botão GitHub -->
     <p>
         <a href="https://github.com/helolrodrigues/starmovie" target="_blank" class="btn-github">
             <img src="img/icon-github.png" alt="GitHub">
@@ -217,23 +212,23 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
         </a>
     </p>
 
-    <style>
-        .devs-container {
+<style>
+    .devs-container {
   display: flex;
-  justify-content: center;   /* Centraliza tudo */
-  gap: 40px;                 /* Espaço entre os cards */
-  flex-wrap: wrap;           /* Quebra linha se necessário */
+  justify-content: center;   
+  gap: 40px;                 
+  flex-wrap: wrap;           
   margin-top: 20px;
 }
 
 .dev-card {
-  text-align: center;        /* Centraliza nome e imagem */
+  text-align: center;       
 }
 
 .foto {
   width: 150px;
   height: 150px;
-  object-fit: cover;         /* Mantém a imagem bonita */
+  object-fit: cover;         
   border-radius: 15px;
 }
 
@@ -241,15 +236,12 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
   margin-top: 8px;
   font-size: 18px;
   font-weight: bold;
-  color: white;              /* Ajuste conforme seu tema */
+  color: white;              
   font-family: Arial, sans-serif;
 }
-
-
-        </style>
+</style>
 
 </main>
-
 <?php include("footer.php"); ?>
 </body>
 </html>

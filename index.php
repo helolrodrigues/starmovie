@@ -1,15 +1,12 @@
 <?php session_start(); ?>
 <?php include("header.php"); ?>
-
-<!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <main>
-  <!-- Seção Filmes -->
+
   <h2>Filmes em destaque</h2>
 
   <div class="filmes">
-    <!-- Linha 1 -->
     <div class="card" data-bs-toggle="modal" data-bs-target="#modal1">
       <img src="img/divertidamente.jpeg" alt="Divertidamente">
       <h5 class="card-title">Saiba mais</h5>
@@ -30,7 +27,7 @@
       <h5 class="card-title">Saiba mais</h5>
     </div>
 
-    <!-- Linha 2 -->
+
     <div class="card" data-bs-toggle="modal" data-bs-target="#modal5">
       <img src="img/elaeoscaras.webp" alt="Ela e os caras">
       <h5 class="card-title">Saiba mais</h5>
@@ -52,11 +49,11 @@
     </div>
   </div>
 
-  <!-- Seção Séries -->
+  
   <h2 class="mt-5">Séries em destaque</h2>
 
   <div class="series">
-    <!-- Linha 1 -->
+  
     <div class="card" data-bs-toggle="modal" data-bs-target="#smodal1">
       <img src="img/round6.webp" alt="Round 6">
       <h5 class="card-title">Saiba mais</h5>
@@ -77,7 +74,7 @@
       <h5 class="card-title">Saiba mais</h5>
     </div>
 
-    <!-- Linha 2 -->
+
     <div class="card" data-bs-toggle="modal" data-bs-target="#smodal5">
       <img src="img/ga.jpg" alt="Grey's Anatomy">
       <h5 class="card-title">Saiba mais</h5>
@@ -99,12 +96,12 @@
     </div>
   </div>
 
-  <!-- Botão para inserir novo título -->
+  <!-- botao para inserir novo titulo -->
   <div class="text-center mt-4">
     <a href="inserir.php" class="btn btn-warning btn-lg">Inserir novo título</a>
   </div>
 
-  <!-- Modais Filmes -->
+  <!-- caixa com informações dos filmes -->
   <?php
   $filmes = [
       ['id'=>'modal1','titulo'=>'Divertidamente','img'=>'divertidamente.jpeg','desc'=>"Ano: 2024<br>Gênero: Infantil, Comédia<br>Descrição:Com um salto temporal, Riley se encontra mais velha, passando pela tão temida adolescência. Junto com o amadurecimento, a sala de controle também está passando por uma adaptação para dar lugar a algo totalmente inesperado: novas emoções. As já conhecidas, Alegria, Raiva, Medo, Nojinho e Tristeza não têm certeza de como se sentir quando novos inquilinos chegam ao local."],
@@ -134,7 +131,7 @@
     </div>
   <?php endforeach; ?>
 
-  <!-- Modais Séries -->
+  <!-- caixa com informações das series -->
   <?php
   $series = [
       ['id'=>'smodal1','titulo'=>'Round 6','img'=>'round6.webp','desc'=>"Ano: 2021<br>Gênero: Drama, Suspense<br>Descrição: Participantes competem em jogos mortais por um prêmio em dinheiro."],
@@ -146,7 +143,7 @@
       ['id'=>'smodal7','titulo'=>'Lucifer','img'=>'lucifer.jpg','desc'=>"Ano: 2016<br>Gênero: Drama, Policial, Fantasia<br>Descrição: Lúcifer Morningstar ajuda a polícia de Los Angeles a resolver crimes."],
       ['id'=>'smodal8','titulo'=>'Friends','img'=>'friends.jpg','desc'=>"Ano: 1994<br>Gênero: Comédia, Romance<br>Descrição: A vida de seis amigos em Nova York e suas aventuras pessoais e profissionais."],
   ];
-
+// conecta as imagens dos modais e cards 
   foreach($series as $serie): ?>
     <div class="modal fade" id="<?= $serie['id'] ?>" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
@@ -168,7 +165,6 @@
 
 <?php include("footer.php"); ?>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
@@ -188,7 +184,7 @@
 
   .filmes, .series {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 cards por linha */
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     max-width: 1200px;
     margin: 0 auto 50px auto;

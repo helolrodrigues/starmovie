@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $senha = $_POST['senha'];
 
-    // Busca o usuário pelo email e senha
+    // usuario, email e senha
     $sql = "SELECT * FROM usuarios WHERE email = :email AND senha = :senha";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':email', $email);
@@ -15,8 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($stmt->rowCount() > 0) {
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-        $_SESSION['usuario'] = $usuario['nome'];          // mantém o nome
-        $_SESSION['usuario_id'] = $usuario['id_usuario']; // 👈 adiciona o ID
+        $_SESSION['usuario'] = $usuario['nome'];          
+        $_SESSION['usuario_id'] = $usuario['id_usuario']; 
         header("Location: index.php");
         exit;
     } else {
@@ -27,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <link rel="stylesheet" href="css/style.css">
 
-<!-- formulário de login -->
 <form method="post" class="login-form">
     <h2>Login</h2>
     <input type="email" name="email" placeholder="Email" required>

@@ -12,22 +12,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($nome) || empty($email) || empty($senha)) {
         $erro = "Preencha todos os campos.";
     } else {
-        // Verifica se o email já existe
+        // verifica o email
         $sql = "SELECT id_usuario FROM usuarios WHERE email = :email";
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
 
         if ($stmt->rowCount() > 0) {
-            // Usuário já existe → atualizar
+            //se ja existir, vai atualizar
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $id = $row['id_usuario'];
 
             $hash = password_hash($senha, PASSWORD_DEFAULT);
 
             $upd = $pdo->prepare("
-                UPDATE usuarios
-                SET nome = :nome, senha = :senha
+                UPDATE usuarios 
+                SET nome = :nome, senha = :senha 
                 WHERE id_usuario = :id
             ");
             $upd->execute([
@@ -37,11 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ]);
 
         } else {
-            // Criar novo usuário
+            // criar novo usuario
             $hash = password_hash($senha, PASSWORD_DEFAULT);
 
             $ins = $pdo->prepare("
-                INSERT INTO usuarios (nome, email, senha)
+                INSERT INTO usuarios (nome, email, senha) 
                 VALUES (:nome, :email, :senha)
             ");
             $ins->execute([
@@ -50,11 +50,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 ':senha' => $hash
             ]);
 
-            // Capturar ID inserido
+            // pega o ID
             $id = $pdo->lastInsertId();
         }
 
-        // Login automático
+        // sessao de cadastro 
         $_SESSION['usuario'] = $nome;
         $_SESSION['usuario_email'] = $email;
         $_SESSION['usuario_id'] = $id;
@@ -137,11 +137,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: #ff4d4d;
             margin-top: 10px;
         }
-    </style>
+    </style> 
 </head>
-<body>
+<body> 
 
-<!-- coleta informações para o cadastro -->
 <form method="post" class="login-form">
     <h2>Faça seu cadastro na StarMovie!</h2>
     <input type="text" name="nome" placeholder="Nome" required>

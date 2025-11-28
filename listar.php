@@ -2,7 +2,7 @@
 session_start();
 require 'conexao.php';
 
-// Busca títulos com seus gêneros
+// mostra todas as informações dos titulos
 try {
     $sql = "
         SELECT 
@@ -36,7 +36,6 @@ try {
 <link rel="stylesheet" href="css/style.css">
 <?php include("header.php"); ?>
 <style>
-/* Corpo da página */
 body { 
     background:#000; 
     color:#fff; 
@@ -45,14 +44,13 @@ body {
     padding:0; 
 }
 
-/* Container do catálogo */
 .catalogo-container { 
     width:90%; 
     max-width:1200px; 
     margin:40px auto; 
 }
 
-/* Título */
+
 .catalogo-titulo { 
     text-align:center; 
     color:#ffcc00; 
@@ -60,19 +58,18 @@ body {
     margin-bottom:30px; 
 }
 
-/* Grid de cards: 4 por linha */
+
 .catalogo-grid { 
     display:grid; 
     grid-template-columns: repeat(4, 1fr); 
     gap:25px; 
 }
 
-/* Responsivo */
 @media (max-width: 1024px) { .catalogo-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 768px)  { .catalogo-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 480px)  { .catalogo-grid { grid-template-columns: 1fr; } }
 
-/* Card individual */
+
 .card { 
     background:#111; 
     border-radius:10px; 
@@ -85,14 +82,14 @@ body {
     box-shadow:0 0 20px rgba(255,204,0,0.5); 
 }
 
-/* Imagem do card */
+
 .card img { 
     width:100%; 
     height:320px; 
     object-fit:cover; 
 }
 
-/* Conteúdo do card */
+
 .card-content { 
     padding:15px; 
 }
@@ -110,7 +107,6 @@ body {
     color:#ffcc00; 
 }
 
-/* Ações do card (editar/excluir) */
 .card-actions { 
     margin-top:10px; 
 }
@@ -128,7 +124,6 @@ body {
 </head>
 <body>
 
-<!-- montagem pagina de catálogo -->
 <div class="catalogo-container">
     <h1 class="catalogo-titulo">Catálogo de Filmes e Séries</h1>
 
@@ -136,7 +131,7 @@ body {
         <?php if(!empty($filmes)): ?>
             <?php foreach($filmes as $filme): ?>
                 <?php $id = $filme['id_titulos']; ?>
-                <div class="card">
+                <div class="card"> 
                     <?php $img = !empty($filme['imagem']) ? $filme['imagem'] : 'img/default_poster.jpg'; ?>
                     <img src="<?= htmlspecialchars($img) ?>" alt="Capa do título">
                     

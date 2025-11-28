@@ -41,7 +41,7 @@ if (!isset($_SESSION['usuario'])) {
 
 require 'conexao.php';
 
-// Verifica se recebeu o ID pela URL
+// verifica id pela URL
 if (!isset($_GET['id'])) {
     die("Erro: ID não informado!");
 }
@@ -49,17 +49,17 @@ if (!isset($_GET['id'])) {
 $id = (int) $_GET['id']; 
 
 try {
-    // 1️⃣ Exclui as reviews relacionadas ao título
+    // exclui as reviews
     $del_reviews = $pdo->prepare("DELETE FROM reviews WHERE fk_titulos_id_titulos = :id");
     $del_reviews->bindParam(':id', $id);
     $del_reviews->execute();
 
-    // 2️⃣ Exclui os vínculos com gênero
+    // exclui as conexões com o genero
     $del_rel = $pdo->prepare("DELETE FROM titulo_genero WHERE fk_titulos_id_titulos = :id");
     $del_rel->bindParam(':id', $id);
     $del_rel->execute();
 
-    // 3️⃣ Depois exclui o título
+    // exclui o titulo
     $del_titulo = $pdo->prepare("DELETE FROM titulos WHERE id_titulos = :id");
     $del_titulo->bindParam(':id', $id);
     $del_titulo->execute();

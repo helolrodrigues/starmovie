@@ -2,9 +2,9 @@
 session_start();
 require 'conexao.php';
 
-// Confere login
+// confere se voce esta logado ou nao
 if (!isset($_SESSION['usuario_id'])) {
-    // Mensagem estilizada com botão para cadastro
+//mensagem e style da caixa de aviso
     echo '
     <!DOCTYPE html>
     <html lang="pt-br">
@@ -66,19 +66,17 @@ if (!isset($_SESSION['usuario_id'])) {
     exit;
 }
 
-// Usuário logado continua com o código normal
+// mostra o codigo normal se o usuario estiver logado
 $usuarioLogado = $_SESSION['usuario_id'];
 
-// Confere ID
+// confere se realmente tem ID
 if (!isset($_GET['id'])) {
     die("Erro: Nenhum ID informado.");
 }
 
 $id = (int) $_GET['id'];
 
-/* ================================
-   BUSCA DADOS DO TÍTULO
-================================ */
+//busca todos os dados do titulo do filme
 $sql = $pdo->prepare("SELECT * FROM titulos WHERE id_titulos = ?");
 $sql->execute([$id]);
 $titulo = $sql->fetch(PDO::FETCH_ASSOC);
@@ -87,9 +85,7 @@ if (!$titulo) {
     die("Erro: Título não encontrado.");
 }
 
-/* ================================
-   BUSCA GÊNEROS
-================================ */
+//pega as opções de generos
 $generos = $pdo->query("SELECT * FROM generos ORDER BY nome")->fetchAll(PDO::FETCH_ASSOC);
 
 // gênero atual
@@ -97,9 +93,7 @@ $sqlGen = $pdo->prepare("SELECT fk_generos_id_generos FROM titulo_genero WHERE f
 $sqlGen->execute([$id]);
 $generoAtual = $sqlGen->fetchColumn();
 
-/* ================================
-   PROCESSA FORMULÁRIO
-================================ */
+//mostra o formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $nome_filmes = trim($_POST['nome_filmes'] ?? '');
@@ -111,9 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($tipo === 'Filme') $nome_serie = '';
     if ($tipo === 'Série') $nome_filmes = '';
 
-    /* ================================
-       Upload e remoção de imagem
-    ================================= */
+//para adicionar e remover imagem
     $imagem = $titulo['imagem'];
 
     if (isset($_POST['apagar_imagem']) && $_POST['apagar_imagem'] == '1') {
@@ -135,9 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    /* ================================
-       Atualiza tabela titulos
-    ================================= */
+//atualiza o titulo do filme ou serie
     $update = $pdo->prepare("
         UPDATE titulos 
         SET nome_filmes = ?, nome_serie = ?, tipo = ?, sinopse = ?, imagem = ?
@@ -145,9 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ");
     $update->execute([$nome_filmes, $nome_serie, $tipo, $sinopse, $imagem, $id]);
 
-    /* ================================
-       Atualiza gênero do título
-    ================================= */
+    //atualiza o genero
     if (!empty($generoNovo)) {
         $check = $pdo->prepare("
             SELECT COUNT(*) 
@@ -178,14 +166,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!-- HTML do formulário de edição continua aqui normalmente -->
 
 
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Editar Título</title>
+<title>Editar Título</title> 
 <style>
 body {
     background: #000;
@@ -271,7 +258,7 @@ button {
     border-radius: 10px;
 }
 
-/* Campos dinâmicos de Filme/Série */
+/* campo de selecionar se é filme ou serie */
 #campo-filme, #campo-serie { display:none; }
 </style>
 </head>
@@ -289,18 +276,19 @@ button {
     <option value="Série" <?= $titulo['tipo']=='Série'?'selected':'' ?>>Série</option>
 </select>
 
-<!-- CAMPO FILME -->
+<!-- parte que adiciona o nome do filme -->
 <div id="campo-filme">
     <label>Nome do Filme:</label>
     <input type="text" name="nome_filmes" id="nome_filmes" value="<?= htmlspecialchars($titulo['nome_filmes']) ?>">
 </div>
 
-<!-- CAMPO SÉRIE -->
+<!--  parte que adiciona o nome da serie -->
 <div id="campo-serie">
     <label>Nome da Série:</label>
     <input type="text" name="nome_serie" id="nome_serie" value="<?= htmlspecialchars($titulo['nome_serie']) ?>">
 </div>
 
+<!--  escolhe o genero -->
 <label>Gênero:</label>
 <select name="fk_generos_id_generos">
     <option value="">Selecione...</option>
@@ -311,6 +299,7 @@ button {
     <?php endforeach; ?>
 </select>
 
+<!--  escreve a sinopse -->
 <label>Sinopse:</label>
 <textarea name="sinopse" rows="4"><?= htmlspecialchars($titulo['sinopse']) ?></textarea>
 
@@ -319,8 +308,7 @@ button {
 
 <button type="submit">Salvar alterações</button>
 </form>
-
-<!-- formulário de ajuste conforme o titulo escolhido -->
+<!--  aparece o campo de filme/serie quando é selecionado o tipo  -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const tipo = document.getElementById("tipo");

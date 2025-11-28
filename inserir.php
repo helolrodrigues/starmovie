@@ -2,9 +2,9 @@
 session_start();
 require 'conexao.php';
 
-// Bloqueio para usuário não logado
+// bloqueia se nao estiver logado
 if (!isset($_SESSION['usuario_id'])) {
-    // CSS + HTML para mensagem de aviso
+//mensagem que nao é cadastrado
     echo '
     <!DOCTYPE html>
     <html lang="pt-br">
@@ -68,7 +68,7 @@ if (!isset($_SESSION['usuario_id'])) {
 
 $usuarioLogado = $_SESSION['usuario_id'];
 
-// Processar formulário
+// formulario 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $tipo         = trim($_POST['tipo'] ?? '');
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($tipo === 'Filme') $nome_serie = '';
     if ($tipo === 'Série') $nome_filmes = '';
 
-    // Upload de imagem
+    // upload da imagem
     if (!empty($_FILES['imagem']['name'])) {
         $pastaDestino = __DIR__ . '/img/';
         if (!is_dir($pastaDestino)) mkdir($pastaDestino, 0777, true);
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Inserir título com id_usuario
+        // insere titulo 
         $sql = "INSERT INTO titulos (nome_filmes, nome_serie, tipo, sinopse, imagem, id_usuario)
                 VALUES (:nome_filmes, :nome_serie, :tipo, :sinopse, :imagem, :id_usuario)";
 
@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $id_titulo = $pdo->lastInsertId();
 
-        // Associar gênero
+        // escolhe o genero
         if ($genero !== '') {
             $stmtGen = $pdo->prepare("SELECT id_generos FROM generos WHERE nome = :genero LIMIT 1");
             $stmtGen->bindParam(':genero', $genero);
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Carregar gêneros
+//carrega as opcoes de genero
 $generosExistentes = [];
 try {
     $stmt = $pdo->query("SELECT nome FROM generos ORDER BY nome ASC");
@@ -247,13 +247,13 @@ try {
     <option value="Série">Série</option>
 </select>
 
-<!-- CAMPO FILME -->
+<!-- nome do filme-->
 <div id="campo-filme" style="display:none;">
     <label>Nome do Filme:</label>
     <input type="text" name="nome_filmes" id="nome_filmes" placeholder="Digite o nome do filme">
 </div>
 
-<!-- CAMPO SERIE -->
+<!-- nome da serie  -->
 <div id="campo-serie" style="display:none;">
     <label>Nome da Série:</label>
     <input type="text" name="nome_serie" id="nome_serie" placeholder="Digite o nome da série">
@@ -276,7 +276,7 @@ try {
 <button type="submit">Salvar</button>
 </form>
 
-<script>
+<script> //se for filme aparecer somnete campo de filme
 document.addEventListener("DOMContentLoaded", function() {
     const tipo = document.getElementById("tipo");
     const campoFilme = document.getElementById("campo-filme");
