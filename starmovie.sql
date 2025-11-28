@@ -21,6 +21,9 @@ SET time_zone = "+00:00";
 -- Banco de dados: `starmovie`
 --
 
+CREATE DATABASE starmovie;
+USE starmovie;
+
 -- --------------------------------------------------------
 
 --
@@ -65,7 +68,6 @@ CREATE TABLE `reviews` (
 --
 -- Estrutura para tabela `titulos`
 --
-
 CREATE TABLE `titulos` (
   `id_titulos` int(11) NOT NULL,
   `nome_filmes` varchar(255) DEFAULT NULL,
