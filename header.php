@@ -9,7 +9,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     <meta charset="UTF-8">
     <title>Starmovie</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" type="image/png" href="img/logo.jpeg">
+    <link rel="icon" type="image/png" href="img/logo.png">
 
 
     <style>
@@ -91,7 +91,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 <header>
     <div class="logo">
-        <img src="img/logo.jpeg" alt="Starmovie Logo">
+        <img src="img/logo.png" alt="Starmovie Logo">
         <h1 style="color: #ffcc00; margin:0;">Starmovie</h1>
     </div>
 

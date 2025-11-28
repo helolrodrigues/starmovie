@@ -178,7 +178,36 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
       conhecimentos em desenvolvimento web criando uma plataforma prática,  
       intuitiva e voltada para os fãs de cinema.
     </p>
-    <img src="img/nos.jpeg" class="img-fluid center-img" alt="Nossa equipe">
+    <h2 class="h2">Desenvolvedores</h2>
+<div class="devs-container">
+
+  <div class="dev-card">
+    <img src="img/heloisa.jpg" class="foto">
+    <p class="nome">Heloisa Lima Rodrigues</p>
+  </div>
+
+  <div class="dev-card">
+    <img src="img/anafortes.jpg" class="foto">
+    <p class="nome">Ana Caroliny Fortes</p>
+  </div>
+
+  <div class="dev-card">
+    <img src="img/anabia.jpg" class="foto">
+    <p class="nome">Ana Beatriz Gilarde</p>
+  </div>
+
+  <div class="dev-card">
+    <img src="img/isa.jpg" class="foto">
+    <p class="nome">Isadora Ribeiro Jans</p>
+  </div>
+
+  <div class="dev-card">
+    <img src="img/julio.jpg" class="foto">
+    <p class="nome">julio Cesar Pereira Da Silva Junior</p>
+  </div>
+
+</div>
+
 
     <!-- Seção de Contato com botão GitHub -->
     <p>
@@ -187,6 +216,37 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
             Acesse nosso GitHub
         </a>
     </p>
+
+    <style>
+        .devs-container {
+  display: flex;
+  justify-content: center;   /* Centraliza tudo */
+  gap: 40px;                 /* Espaço entre os cards */
+  flex-wrap: wrap;           /* Quebra linha se necessário */
+  margin-top: 20px;
+}
+
+.dev-card {
+  text-align: center;        /* Centraliza nome e imagem */
+}
+
+.foto {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;         /* Mantém a imagem bonita */
+  border-radius: 15px;
+}
+
+.nome {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;              /* Ajuste conforme seu tema */
+  font-family: Arial, sans-serif;
+}
+
+
+        </style>
 
 </main>
 
