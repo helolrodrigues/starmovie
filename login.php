@@ -27,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <link rel="stylesheet" href="css/style.css">
 
+<!-- formulário de login -->
 <form method="post" class="login-form">
     <h2>Login</h2>
     <input type="email" name="email" placeholder="Email" required>

@@ -128,6 +128,7 @@ body {
 </head>
 <body>
 
+<!-- montagem pagina de catálogo -->
 <div class="catalogo-container">
     <h1 class="catalogo-titulo">Catálogo de Filmes e Séries</h1>
 

@@ -26,8 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $hash = password_hash($senha, PASSWORD_DEFAULT);
 
             $upd = $pdo->prepare("
-                UPDATE usuarios 
-                SET nome = :nome, senha = :senha 
+                UPDATE usuarios
+                SET nome = :nome, senha = :senha
                 WHERE id_usuario = :id
             ");
             $upd->execute([
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $hash = password_hash($senha, PASSWORD_DEFAULT);
 
             $ins = $pdo->prepare("
-                INSERT INTO usuarios (nome, email, senha) 
+                INSERT INTO usuarios (nome, email, senha)
                 VALUES (:nome, :email, :senha)
             ");
             $ins->execute([
@@ -141,6 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>
 
+<!-- coleta informações para o cadastro -->
 <form method="post" class="login-form">
     <h2>Faça seu cadastro na StarMovie!</h2>
     <input type="text" name="nome" placeholder="Nome" required>

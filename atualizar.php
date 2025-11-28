@@ -320,6 +320,7 @@ button {
 <button type="submit">Salvar alterações</button>
 </form>
 
+<!-- formulário de ajuste conforme o titulo escolhido -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const tipo = document.getElementById("tipo");

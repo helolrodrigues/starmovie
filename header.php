@@ -90,11 +90,13 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 <body>
 
 <header>
+    <!-- logo e nome do site -->
     <div class="logo">
         <img src="img/logo.png" alt="Starmovie Logo">
         <h1 style="color: #ffcc00; margin:0;">Starmovie</h1>
     </div>
 
+    <!-- menu de navegação -->
     <nav>
         <ul>
             <li><a href="index.php">Início</a></li>
@@ -104,6 +106,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
         </ul>
     </nav>
 
+    <!-- login/cadastro -->
     <div class="search-login">
         <?php if (isset($_SESSION['usuario'])): ?>
             <span>Olá, <strong><?= htmlspecialchars($_SESSION['usuario']) ?></strong></span>
