@@ -1,18 +1,24 @@
 <?php
+// permite armazenar informações(email,nome,etc)
 session_start();
 include("conexao.php"); // deve conter $pdo
 
+// guarda mensagens de erro
 $erro = '';
 
+// verifica se o formulario foi enviado, so roda se for post
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+    // coleta os dados do usuario
     $nome = trim($_POST['nome'] ?? '');
     $email = strtolower(trim($_POST['email'] ?? ''));
     $senha = $_POST['senha'] ?? '';
 
+    // verifica se os campos foram preenchidos
     if (empty($nome) || empty($email) || empty($senha)) {
         $erro = "Preencha todos os campos.";
     } else {
-        // verifica o email
+        // verifica o email se ja existe
         $sql = "SELECT id_usuario FROM usuarios WHERE email = :email";
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':email', $email);
@@ -49,16 +55,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 ':email' => $email,
                 ':senha' => $hash
             ]);
-
-            // pega o ID
             $id = $pdo->lastInsertId();
         }
 
-        // sessao de cadastro 
+        // variaveis de sessao de cadastro 
         $_SESSION['usuario'] = $nome;
         $_SESSION['usuario_email'] = $email;
         $_SESSION['usuario_id'] = $id;
 
+        // usuario enviado para a pagina de login
         header("Location: index.php");
         exit;
     }
@@ -141,6 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body> 
 
+<!-- formulario -->
 <form method="post" class="login-form">
     <h2>Faça seu cadastro na StarMovie!</h2>
     <input type="text" name="nome" placeholder="Nome" required>

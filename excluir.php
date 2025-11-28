@@ -1,6 +1,9 @@
 <?php
 session_start();
+
+// verifica se a variavel criada existe
 if (!isset($_SESSION['usuario'])) {
+    // mensagem estilizada sobre acesso restrito
     echo "
     <style>
         body {
@@ -39,13 +42,15 @@ if (!isset($_SESSION['usuario'])) {
     exit;
 }
 
+// carrega a conexão com o banco
 require 'conexao.php';
 
-// verifica id pela URL
+// verifica se o id de usuario será exxcluido pela URL
 if (!isset($_GET['id'])) {
     die("Erro: ID não informado!");
 }
 
+// converte o id para numero
 $id = (int) $_GET['id']; 
 
 try {
@@ -59,14 +64,15 @@ try {
     $del_rel->bindParam(':id', $id);
     $del_rel->execute();
 
-    // exclui o titulo
+    // exclui o titulo da tabela principal
     $del_titulo = $pdo->prepare("DELETE FROM titulos WHERE id_titulos = :id");
     $del_titulo->bindParam(':id', $id);
     $del_titulo->execute();
 
+    // redireciona para o listar
     header("Location: listar.php?msg=excluido");
     exit;
-
+// se acontecer algum erro, mostra uma mensagem em vez do sistema quebrar
 } catch (PDOException $e) {
     echo "Erro ao excluir: " . $e->getMessage();
 }
