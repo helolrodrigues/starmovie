@@ -4,7 +4,7 @@ require 'conexao.php';
 
 // bloqueia se nao estiver logado
 if (!isset($_SESSION['usuario_id'])) {
-//mensagem que nao é cadastrado
+
     echo '
     <!DOCTYPE html>
     <html lang="pt-br">
@@ -69,8 +69,10 @@ if (!isset($_SESSION['usuario_id'])) {
 $usuarioLogado = $_SESSION['usuario_id'];
 
 // formulario 
+//Verifica se alguém apertou o botão de enviar
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    //Pega o que a pessoa escreveu no formulário
     $tipo         = trim($_POST['tipo'] ?? '');
     $nome_filmes  = trim($_POST['nome_filmes'] ?? '');
     $nome_serie   = trim($_POST['nome_serie'] ?? '');
@@ -78,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $genero       = trim($_POST['genero'] ?? '');
     $imagem       = null;
 
+    //se for filme apaga o nome da série..
     if ($tipo === 'Filme') $nome_serie = '';
     if ($tipo === 'Série') $nome_filmes = '';
 
@@ -86,9 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pastaDestino = __DIR__ . '/img/';
         if (!is_dir($pastaDestino)) mkdir($pastaDestino, 0777, true);
 
+        //cria um nome para a imagem
         $nomeArquivo = uniqid() . '-' . basename($_FILES['imagem']['name']);
         $caminhoDestino = $pastaDestino . $nomeArquivo;
-
+        
+        //move a foto para a pasta
         if (move_uploaded_file($_FILES['imagem']['tmp_name'], $caminhoDestino)) {
             $imagem = 'img/' . $nomeArquivo;
         } else {
@@ -101,7 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // insere titulo 
         $sql = "INSERT INTO titulos (nome_filmes, nome_serie, tipo, sinopse, imagem, id_usuario)
                 VALUES (:nome_filmes, :nome_serie, :tipo, :sinopse, :imagem, :id_usuario)";
-
+        
+        //
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':nome_filmes', $nome_filmes);
         $stmt->bindParam(':nome_serie', $nome_serie);
@@ -128,6 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $id_genero = $pdo->lastInsertId();
             }
 
+            //liga o titulo ao genero
             $rel = $pdo->prepare("INSERT INTO titulo_genero (fk_titulos_id_titulos, fk_generos_id_generos)
                                   VALUES (:id_titulos, :id_generos)");
 
@@ -138,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         header("Location: listar.php?msg=inserido");
         exit;
-
+     //se acontecer algum erro aparece 
     } catch (PDOException $e) {
         echo "<p style='color:red;text-align:center;'>Erro ao inserir título: " . htmlspecialchars($e->getMessage()) . "</p>";
     }
@@ -240,6 +247,7 @@ try {
 <form method="POST" enctype="multipart/form-data">
 <h2>Insira um novo título!</h2>
 
+  <!-- usuario escolhe filme ou serie -->
 <label>Tipo:</label>
 <select name="tipo" id="tipo" required>
     <option value="">Selecione...</option>
@@ -276,14 +284,15 @@ try {
 <button type="submit">Salvar</button>
 </form>
 
-<script> //se for filme aparecer somnete campo de filme
+<script> //se for filme aparecer somente campo de filme
 document.addEventListener("DOMContentLoaded", function() {
-    const tipo = document.getElementById("tipo");
+    const tipo = document.getElementById("tipo"); //pega os elementos do html
     const campoFilme = document.getElementById("campo-filme");
     const campoSerie = document.getElementById("campo-serie");
     const inputFilme = document.getElementById("nome_filmes");
     const inputSerie = document.getElementById("nome_serie");
-
+   
+    //usuario muda de seleção
     tipo.addEventListener("change", function() {
         if (this.value === "Filme") {
             campoFilme.style.display = "block";

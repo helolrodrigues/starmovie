@@ -47,7 +47,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
             height: 40px;
         }
 
-        nav ul {
+        /* deixa os itens do menu em linha um do lado do outro */
+        nav ul {  
             list-style: none;
             display: flex;
             gap: 25px;
